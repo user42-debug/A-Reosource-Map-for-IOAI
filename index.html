@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IOAI Resource Map</title>
+<style>
+  :root{
+    --bg:#0B0E14;
+    --bg-elevated:#121722;
+    --bg-card:#161C29;
+    --border:#232C3D;
+    --border-soft:#1A2130;
+    --text:#E7ECF3;
+    --text-dim:#93A0B4;
+    --text-faint:#5C6779;
+
+    --c-beginner:#33D6C0;
+    --c-beginner-dim: rgba(51,214,192,0.14);
+    --c-intermediate:#F2B84B;
+    --c-intermediate-dim: rgba(242,184,75,0.14);
+    --c-advanced:#C77DFF;
+    --c-advanced-dim: rgba(199,125,255,0.14);
+    --c-compete:#FF6B6B;
+    --c-compete-dim: rgba(255,107,107,0.14);
+
+    --mono: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body.light{
+    --bg:#F5F7FA;
+    --bg-elevated:#FFFFFF;
+    --bg-card:#FFFFFF;
+    --border:#D5DCE6;
+    --border-soft:#E5E9F0;
+    --text:#172033;
+    --text-dim:#536176;
+    --text-faint:#7B8799;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  ::selection{background:rgba(255,255,255,0.15);}
+
+  /* ---------- layout shell ---------- */
+  .wrap{max-width:1040px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- top nav ---------- */
+  .topnav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,14,20,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  body.light .topnav{background:rgba(245,247,250,0.88);}
+  .topnav-inner{
+    max-width:1040px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; gap:18px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.02em;
+    color:var(--text); white-space:nowrap; font-weight:600;
+    text-decoration:none;
+  }
+  .brand span{color:var(--text-faint);}
+  .tier-links{display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;}
+  .tier-link{
+    font-family:var(--mono); font-size:12px;
+    padding:7px 12px; border-radius:99px;
+    border:1px solid var(--border);
+    text-decoration:none; color:var(--text-dim);
+    display:flex; align-items:center; gap:7px;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .tier-link:hover{color:var(--text); border-color:var(--dot,var(--text-dim));}
+  .tier-link.active{color:var(--text); background:var(--bg-card); border-color:var(--dot);}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--dot); flex:none;}
+  .theme-toggle{margin-left:4px; cursor:pointer; background:transparent;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 40px; border-bottom:1px solid var(--border-soft);}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--text-faint); margin:0 0 14px;
+  }
+  h1.title{
+    font-family:var(--mono); font-weight:700;
+    font-size:clamp(28px,5vw,44px); line-height:1.1; letter-spacing:-0.01em;
+    margin:0 0 18px; max-width:16ch;
+  }
+  .hero p.lede{color:var(--text-dim); max-width:56ch; font-size:16px; margin:0 0 28px;}
+  .stat-row{display:flex; gap:28px; flex-wrap:wrap; margin-bottom:30px;}
+  .stat b{display:block; font-family:var(--mono); font-size:22px; color:var(--text);}
+  .stat span{font-size:12px; color:var(--text-faint);}
+  .hero-links{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--mono); font-size:13px; text-decoration:none;
+    padding:10px 16px; border-radius:8px; border:1px solid var(--border);
+    color:var(--text); display:inline-flex; align-items:center; gap:8px;
+    transition:border-color .15s, transform .1s;
+  }
+  .btn:hover{border-color:var(--text-dim); transform:translateY(-1px);}
+  .btn.primary{background:var(--text); color:var(--bg); border-color:var(--text);}
+  .btn.primary:hover{opacity:.9;}
+
+  /* search */
+  .search-row{margin-top:26px;}
+  .search-input{
+    width:100%; max-width:420px;
+    background:var(--bg-card); border:1px solid var(--border);
+    color:var(--text); font-family:var(--sans); font-size:14px;
+    padding:11px 14px; border-radius:8px;
+  }
+  .search-input:focus{outline:2px solid var(--text-dim); outline-offset:1px;}
+  .search-input::placeholder{color:var(--text-faint);}
+  .search-hint{font-size:12px; color:var(--text-faint); margin-top:8px; font-family:var(--mono);}
+
+  /* ---------- tier sections ---------- */
+  .tier{padding:56px 0; position:relative;}
+  .tier + .tier{border-top:1px solid var(--border-soft);}
+  .tier-head{display:flex; align-items:baseline; gap:14px; margin-bottom:8px; flex-wrap:wrap;}
+  .tier-num{font-family:var(--mono); font-size:13px; color:var(--dot);}
+  .tier-head h2{
+    font-family:var(--mono); font-size:24px; margin:0; letter-spacing:-0.01em;
+  }
+  .tier-count{font-family:var(--mono); font-size:12px; color:var(--text-faint); margin-left:auto;}
+  .tier-tagline{color:var(--text-dim); max-width:60ch; margin:0 0 36px; font-size:15px;}
+
+  /* signal rail */
+  .rail{position:relative; padding-left:26px;}
+  .rail::before{
+    content:""; position:absolute; left:6px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(to bottom, var(--dot), transparent 96%);
+    opacity:.35;
+  }
+
+  .cluster{position:relative; margin-bottom:38px;}
+  .cluster:last-child{margin-bottom:0;}
+  .cluster::before{
+    content:""; position:absolute; left:-26px; top:6px; width:11px; height:11px;
+    border-radius:50%; background:var(--bg); border:2px solid var(--dot);
+  }
+  .cluster-name{
+    font-family:var(--mono); font-size:13px; font-weight:600;
+    color:var(--dot); margin:0 0 14px; letter-spacing:0.01em;
+  }
+
+  .card-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  @media (max-width:680px){ .card-grid{grid-template-columns:1fr;} }
+
+  .card{
+    background:var(--bg-card); border:1px solid var(--border);
+    border-radius:10px; padding:16px 16px 14px;
+    transition:border-color .15s, transform .12s;
+  }
+  .card:hover{border-color:var(--dot); transform:translateY(-2px);}
+  .card h3{font-size:15px; margin:0 0 6px; font-weight:600;}
+  .card p{font-size:13.5px; color:var(--text-dim); margin:0 0 12px;}
+  .card .links{display:flex; flex-wrap:wrap; gap:7px;}
+  .card .links a{
+    font-family:var(--mono); font-size:11.5px; text-decoration:none;
+    color:var(--dot); background:var(--dot-bg); padding:5px 9px; border-radius:6px;
+    border:1px solid transparent;
+  }
+  .card .links a:hover{border-color:var(--dot);}
+  .card.hidden{display:none;}
+  .cluster.hidden{display:none;}
+
+  /* ---------- footer ---------- */
+  footer{padding:48px 0 64px; border-top:1px solid var(--border-soft);}
+  footer p{color:var(--text-dim); font-size:13.5px; max-width:60ch;}
+  footer .foot-links{display:flex; gap:16px; flex-wrap:wrap; margin-top:14px;}
+  footer .foot-links a{font-family:var(--mono); font-size:12.5px; color:var(--text-dim); text-decoration:none;}
+  footer .foot-links a:hover{color:var(--text);}
+  .maintain-note{
+    margin-top:28px; padding:14px 16px; border:1px dashed var(--border);
+    border-radius:8px; font-family:var(--mono); font-size:12px; color:var(--text-faint);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="brand" href="#top">IOAI<span>.map</span></a>
+    <div class="tier-links" id="tierLinks"></div>
+    <button class="tier-link theme-toggle" id="themeToggle" type="button" aria-pressed="false">Light theme</button>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+  <section class="hero">
+    <p class="eyebrow">A living resource map</p>
+    <h1 class="title">A Reosource Map for IOAI</h1>
+    <p class="lede">A curated path through the official IOAI syllabus  from Python basics to diffusion models split into beginner, intermediate and advanced tiers, plus real past contest tasks to practice on.</p>
+
+    <div class="stat-row" id="statRow"></div>
+
+    <div class="hero-links">
+      <a class="btn primary" href="https://ioai-official.org/republic-of-kazakhstan/syllabus-2026/" target="_blank" rel="noopener">Official syllabus (PDF) &rarr;</a>
+      <a class="btn" href="https://ioai-official.org/resources/" target="_blank" rel="noopener">IOAI Education Hub &rarr;</a>
+      <a class="btn" href="#compete">Practice tasks &rarr;</a>
+    </div>
+
+    <div class="search-row">
+      <input class="search-input" id="searchBox" type="text" placeholder="Filter topics — try &quot;transformer&quot;, &quot;pandas&quot;, &quot;CLIP&quot;&hellip;">
+      <div class="search-hint" id="searchHint">&nbsp;</div>
+    </div>
+  </section>
+
+  <main id="tiers"></main>
+
+  <section class="tier" id="compete">
+    <div class="tier-head">
+      <span class="tier-num" style="--dot:var(--c-compete); color:var(--c-compete);">04</span>
+      <h2>Practice &amp; Past Tasks</h2>
+      <span class="tier-count" id="competeCount"></span>
+    </div>
+    <p class="tier-tagline">Once the fundamentals hold up, the fastest gains come from solving real contest problems &mdash; IOAI's own released tasks, and national olympiads that feed into it.</p>
+    <div class="rail" style="--dot:var(--c-compete)">
+      <div class="cluster">
+        <p class="cluster-name" style="--dot:var(--c-compete)">Official tasks</p>
+        <div class="card-grid" id="competeGrid"></div>
+      </div>
+      <div class="cluster">
+        <p class="cluster-name" style="--dot:var(--c-compete)">Community</p>
+        <div class="card-grid" id="communityGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>These links are shared purely to help students learn with a clean, structured roadmap. we don't promote, endorse, or profit from any of them.</p>
+    <div class="foot-links">
+      <a href="https://ioai-official.org/" target="_blank" rel="noopener">ioai-official.org</a>
+      <a href="https://ioai-official.org/republic-of-kazakhstan/syllabus-2026/" target="_blank" rel="noopener">Syllabus</a>
+      <a href="https://ioai-official.org/resources/" target="_blank" rel="noopener">Education Hub</a>
+      <a href="https://github.com/open-cu/awesome-ioai-tasks" target="_blank" rel="noopener">awesome-ioai-tasks</a>
+    </div>
+    
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   DATA — edit this to maintain the site. Each tier has clusters,
+   each cluster has topics, each topic has a few curated links.
+   ============================================================ */
+const DATA = [
+  {
+    id: "beginner",
+    num: "01",
+    label: "Beginner",
+    color: "var(--c-beginner)",
+    dotBg: "var(--c-beginner-dim)",
+    tagline: "Foundational Skills & Classical Machine Learning — the tools and models everything else is built on.",
+    clusters: [
+      {
+        name: "Very Basics — Start Here",
+        topics: [
+          { title: "Machine Learning Fundamentals", blurb: "Start here to build a first mental model of what AI/ML actually is.",
+            links: [ {l:"mlcourse.ai guide", u:"https://avalur.github.io/mlcourse/index.html"} ] },
+          { title: "Linear Algebra for ML", blurb: "Vectors and matrices — the math underneath almost every model.",
+            links: [ {l:"Georgia Tech ILA textbook", u:"https://textbooks.math.gatech.edu/ila/"} ] },
+          { title: "How AI Images & Videos Actually Work", blurb: "Visual intuition for what's happening under the hood of image and video generation.",
+            links: [ {l:"Watch video", u:"https://youtu.be/Fk2I6pa6UeA"} ] },
+        ]
+      },
+      {
+        name: "Programming Toolkit",
+        topics: [
+          { title: "Python Basics", blurb: "Loops, functions, data structures — the language everything else is written in.",
+            links: [ {l:"Python docs: tutorial", u:"https://docs.python.org/3/tutorial/"}, {l:"CS50P (Harvard)", u:"https://cs50.harvard.edu/python/"} ] },
+          { title: "NumPy & Pandas", blurb: "Vectorized arrays and dataframes for handling real datasets fast.",
+            links: [ {l:"Kaggle Learn: Pandas", u:"https://www.kaggle.com/learn/pandas"}, {l:"NumPy quickstart", u:"https://numpy.org/doc/stable/user/quickstart.html"} ] },
+          { title: "Matplotlib & Seaborn", blurb: "Plotting so you can actually see what your data and models are doing.",
+            links: [ {l:"Matplotlib tutorials", u:"https://matplotlib.org/stable/tutorials/index.html"} ] },
+          { title: "Scikit-learn", blurb: "The standard toolbox for classical ML — fit, predict, evaluate.",
+            links: [ {l:"scikit-learn tutorials", u:"https://scikit-learn.org/stable/tutorial/index.html"} ] },
+          { title: "PyTorch Basics & Tensors", blurb: "Tensors, autograd, and training a model on CPU or GPU.",
+            links: [ {l:"PyTorch: Learn the Basics", u:"https://pytorch.org/tutorials/beginner/basics/intro.html"} ] },
+        ]
+      },
+      {
+        name: "Supervised Learning",
+        topics: [
+          { title: "Linear & Logistic Regression", blurb: "Fitting a line or a probability — the two workhorse models.",
+            links: [ {l:"StatQuest (YouTube)", u:"https://www.youtube.com/@statquest"}, {l:"Andrew Ng: ML Specialization", u:"https://www.coursera.org/specializations/machine-learning-introduction"} ] },
+          { title: "L1 & L2 Regularization", blurb: "Keeping models from memorizing noise.",
+            links: [ {l:"sklearn: linear models", u:"https://scikit-learn.org/stable/modules/linear_model.html"} ] },
+          { title: "K-Nearest Neighbors & Decision Trees", blurb: "Classify by neighbors, or by a chain of readable rules.",
+            links: [ {l:"sklearn: trees", u:"https://scikit-learn.org/stable/modules/tree.html"} ] },
+          { title: "Model Ensembles", blurb: "Bagging, boosting, random forests — combining weak models into strong ones.",
+            links: [ {l:"sklearn: ensembles", u:"https://scikit-learn.org/stable/modules/ensemble.html"} ] },
+          { title: "Support Vector Machines", blurb: "Finding the widest margin between classes.",
+            links: [ {l:"sklearn: SVM", u:"https://scikit-learn.org/stable/modules/svm.html"} ] },
+        ]
+      },
+      {
+        name: "Unsupervised Learning",
+        topics: [
+          { title: "K-Means Clustering & PCA", blurb: "Group unlabeled data, and compress features down to what matters.",
+            links: [ {l:"sklearn: clustering", u:"https://scikit-learn.org/stable/modules/clustering.html"}, {l:"sklearn: PCA", u:"https://scikit-learn.org/stable/modules/decomposition.html#pca"} ] },
+          { title: "t-SNE, UMAP, DBSCAN & Hierarchical/Spectral", blurb: "Non-linear ways to visualize and cluster high-dimensional data.",
+            links: [ {l:"sklearn: manifold learning", u:"https://scikit-learn.org/stable/modules/manifold.html"} ] },
+        ]
+      },
+      {
+        name: "Data Science Fundamentals",
+        topics: [
+          { title: "Evaluation, Over/Underfitting, Cross-Validation, ROC", blurb: "Knowing whether a model is actually good, and why it fails when it does.",
+            links: [ {l:"Google ML Crash Course", u:"https://developers.google.com/machine-learning/crash-course"}, {l:"Kaggle Learn", u:"https://www.kaggle.com/learn"} ] },
+          { title: "Feature Engineering & Data Processing", blurb: "Turning messy, missing, or raw data into something a model can use.",
+            links: [ {l:"Kaggle Learn: Feature Engineering", u:"https://www.kaggle.com/learn/feature-engineering"} ] },
+        ]
+      },
+      {
+        name: "Tabular Data & Classical ML — Practical",
+        topics: [
+          { title: "LightGBM Starter Guide", blurb: "A hands-on notebook for tabular classification with LightGBM — a good default for tabular contest tasks.",
+            links: [ {l:"Kaggle notebook", u:"https://www.kaggle.com/code/warunimanike/simple-lgbmclassifier-model-guide"} ] },
+          { title: "Approaching (Almost) Any NLP Problem", blurb: "Abhishek Thakur's essential, reusable patterns for tackling NLP tasks on Kaggle.",
+            links: [ {l:"Kaggle notebook", u:"https://www.kaggle.com/code/abhishek/approaching-almost-any-nlp-problem-on-kaggle"} ] },
+        ]
+      },
+    ]
+  },
+  {
+    id: "intermediate",
+    num: "02",
+    label: "Intermediate",
+    color: "var(--c-intermediate)",
+    dotBg: "var(--c-intermediate-dim)",
+    tagline: "Neural Networks & Deep Learning — how gradients flow, and how deep models actually train.",
+    clusters: [
+      {
+        name: "Neural Network Foundations",
+        topics: [
+          { title: "Perceptrons, Gradient Descent, Backpropagation", blurb: "The core loop that every neural network training run comes down to.",
+            links: [ {l:"3Blue1Brown: Neural Networks", u:"https://www.3blue1brown.com/topics/neural-networks"} ] },
+          { title: "Activation & Loss Functions", blurb: "ReLU, sigmoid, tanh, cross-entropy, MSE — the shape of what a network optimizes.",
+            links: [ {l:"Dive into Deep Learning", u:"https://d2l.ai/"} ] },
+        ]
+      },
+      {
+        name: "Deep Learning Building Blocks",
+        topics: [
+          { title: "MLPs, Embeddings & Pooling", blurb: "Stacking layers, and turning text, images or audio into vectors.",
+            links: [ {l:"MIT 6.S191", u:"https://introtodeeplearning.com/"} ] },
+          { title: "Attention & Transformers", blurb: "The mechanism behind every modern language and vision model.",
+            links: [ {l:"The Illustrated Transformer", u:"https://jalammar.github.io/illustrated-transformer/"}, {l:"Stanford CS224n", u:"https://web.stanford.edu/class/cs224n/"} ] },
+          { title: "Autoencoders", blurb: "Compressing data into a bottleneck and reconstructing it.",
+            links: [ {l:"Dive into Deep Learning", u:"https://d2l.ai/"} ] },
+          { title: "Optimizers: SGD, Adam/AdamW", blurb: "How networks actually take each step downhill, and how fast.",
+            links: [ {l:"PyTorch: optimization", u:"https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html"} ] },
+          { title: "Regularization, Init & BatchNorm", blurb: "Dropout, early stopping, weight decay, weight init, batch norm — keeping training stable.",
+            links: [ {l:"Dive into Deep Learning", u:"https://d2l.ai/"} ] },
+          { title: "Model Fine-tuning", blurb: "Full fine-tuning and parameter-efficient methods for adapting pretrained models.",
+            links: [ {l:"Hugging Face NLP Course", u:"https://huggingface.co/learn/nlp-course"} ] },
+        ]
+      },
+      {
+        name: "Practical Deep Learning",
+        topics: [
+          { title: "Neural Networks with PyTorch (Live Build)", blurb: "A full live-coded neural network implementation in PyTorch, start to finish.",
+            links: [ {l:"YouTube Live", u:"https://www.youtube.com/live/ETwIX4TnWME"} ] },
+          { title: "Structured Deep Learning Course", blurb: "A more structured, course-style path through building and fine-tuning models, from NLP fundamentals up.",
+            links: [ {l:"JetBrains Academy", u:"https://academy.jetbrains.com/course/28816"} ] },
+        ]
+      },
+    ]
+  },
+  {
+    id: "advanced",
+    num: "03",
+    label: "Advanced",
+    color: "var(--c-advanced)",
+    dotBg: "var(--c-advanced-dim)",
+    tagline: "Computer Vision, NLP & Audio — the modern, modality-specific architectures IOAI tasks pull from.",
+    clusters: [
+      {
+        name: "Computer Vision",
+        topics: [
+          { title: "Convolutional Layers & Image Classification", blurb: "How CNNs read spatial structure in pixels.",
+            links: [ {l:"Stanford CS231n", u:"https://cs231n.stanford.edu/"} ] },
+          { title: "Object Detection & Segmentation", blurb: "YOLO, SSD, DETR for finding objects; U-Net for pixel-level masks.",
+            links: [ {l:"Ultralytics YOLO docs", u:"https://docs.ultralytics.com/"} ] },
+          { title: "Pretrained Encoders, Augmentation & Self-Supervision", blurb: "ResNet backbones, augmenting images, and learning without labels.",
+            links: [ {l:"PyTorch vision models", u:"https://pytorch.org/vision/stable/models.html"} ] },
+          { title: "GANs, CLIP & Diffusion Basics", blurb: "Generating images and joining vision and text.",
+            links: [ {l:"OpenAI: CLIP", u:"https://openai.com/index/clip/"}, {l:"HF: Diffusion Course", u:"https://huggingface.co/learn/diffusion-course"} ] },
+        ]
+      },
+      {
+        name: "Diffusion Models (IOAI Relevant)",
+        topics: [
+          { title: "Diffusion Models From Scratch", blurb: "The best intro video for building up score-based generative models from first principles.",
+            links: [ {l:"Watch video", u:"https://youtu.be/iv-5mZ_9CPY"} ] },
+          { title: "The Physics Behind Diffusion Models", blurb: "The physical intuition (thermodynamics, noise) that diffusion models are built on.",
+            links: [ {l:"Watch video", u:"https://youtu.be/R0uMcXsfo2o"} ] },
+          { title: "Diffusion Models — Paper & Math Explained", blurb: "A walkthrough of the math behind diffusion models, explained paper-style.",
+            links: [ {l:"Watch video", u:"https://youtu.be/HoKDTa5jHvg"} ] },
+          { title: "DDPM Paper", blurb: "The original Denoising Diffusion Probabilistic Models paper.",
+            links: [ {l:"arXiv:2006.11239", u:"https://arxiv.org/pdf/2006.11239"} ] },
+          { title: "Step-by-Step Diffusion: An Elementary Tutorial", blurb: "A gentler, more elementary derivation of diffusion models.",
+            links: [ {l:"arXiv:2406.08929", u:"https://arxiv.org/pdf/2406.08929"} ] },
+          { title: "The Principles of Diffusion Models", blurb: "A broader survey of the principles underlying diffusion-based generative modeling.",
+            links: [ {l:"arXiv:2510.21890", u:"https://arxiv.org/pdf/2510.21890"} ] },
+          { title: "Implementation tip", blurb: "Start by implementing DDPM on MNIST. Once that works, adapt the same implementation to sample with DDIM instead.",
+            links: [] },
+        ]
+      },
+      {
+        name: "NLP & Audio",
+        topics: [
+          { title: "Text Classification & Pretrained Encoders (BERT)", blurb: "Understanding text with encoder models built for classification and search.",
+            links: [ {l:"Hugging Face NLP Course", u:"https://huggingface.co/learn/nlp-course"} ] },
+          { title: "Language Modeling & Encoder-Decoder Models", blurb: "Predicting the next token, and mapping sequences to sequences (translation, captioning).",
+            links: [ {l:"Stanford CS224n", u:"https://web.stanford.edu/class/cs224n/"} ] },
+          { title: "Audio Processing", blurb: "HuBERT, Whisper, Qwen-Audio, Voxtral — encoders and models for speech and sound.",
+            links: [ {l:"Hugging Face Audio Course", u:"https://huggingface.co/learn/audio-course"} ] },
+        ]
+      },
+      {
+        name: "Audio & Multimodal — Practical",
+        topics: [
+          { title: "Complete Audio Preprocessing Notebook", blurb: "An end-to-end walkthrough of preparing raw audio for a model.",
+            links: [ {l:"Kaggle notebook", u:"https://www.kaggle.com/code/sahandissanayaka/complete-notebook-for-audio-preprocessing"} ] },
+          { title: "Audio Fundamentals", blurb: "A solid grounding in how audio signals actually work before you feed them to a model.",
+            links: [ {l:"Watch video", u:"https://youtu.be/08mmKNLQVHU"} ] },
+        ]
+      },
+    ]
+  },
+];
+
+const COMPETE = [
+  { title: "Official IOAI Syllabus", blurb: "The authoritative topic list this whole map is built from.",
+    links: [ {l:"Read syllabus", u:"https://ioai-official.org/republic-of-kazakhstan/syllabus-2026/"} ] },
+  { title: "IOAI Education Hub", blurb: "IOAI's own collection of open courses and national olympiad problem sets.",
+    links: [ {l:"Open hub", u:"https://ioai-official.org/resources/"} ] },
+  { title: "IOAI 2025 Tasks Repository", blurb: "Problems, datasets and example solutions from the 2025 competition.",
+    links: [ {l:"GitHub", u:"https://github.com/IOAI-official/IOAI-2025"} ] },
+  { title: "IOAI 2024 Tasks Repository", blurb: "Archive of 2024 tasks for training and benchmarking.",
+    links: [ {l:"GitHub", u:"https://github.com/IOAI-official/IOAI-2024"} ] },
+  { title: "Awesome IOAI Tasks", blurb: "A community-maintained list of national olympiad tasks feeding into IOAI.",
+    links: [ {l:"GitHub", u:"https://github.com/open-cu/awesome-ioai-tasks"} ] },
+  { title: "Kaggle Learn", blurb: "Short, notebook-based lessons — good for quick, hands-on drilling.",
+    links: [ {l:"Start here", u:"https://www.kaggle.com/learn"} ] },
+  { title: "Olimpiada AI Problem Platform", blurb: "A standalone judge with AI olympiad-style problems to practice against.",
+    links: [ {l:"Open platform", u:"https://platform.olimpiada-ai.ro/en/problems"} ] },
+  { title: "Nitro AI Judge", blurb: "Another practice judge with live and past AI competitions.",
+    links: [ {l:"Open judge", u:"https://judge.nitro-ai.org/competitions"} ] },
+  { title: "IOAI 2025 At-Home Round Test Datasets", blurb: "Hidden/private test sets from the 2025 at-home round — use these to actually evaluate your models.",
+    links: [ {l:"Task 1 dataset", u:"https://www.kaggle.com/datasets/b88b508a83c4b608e016b5889117ae155afee5f6bdc50cae2b9c86f04adc3277"}, {l:"Audio Classifier hidden test", u:"https://www.kaggle.com/datasets/magauiya/audioclassifier-hidden-test/settings"}, {l:"Animal Deduction private set", u:"https://www.kaggle.com/datasets/akhanov/animaldeduction-private-dataset"} ] },
+  { title: "Community Solution Repos", blurb: "Other students' worked solutions — good for checking your approach after you've tried a task yourself.",
+    links: [ {l:"Stefan Asandei", u:"https://github.com/stefanasandei?tab=repositories"}, {l:"abukanabek/ai-solutions", u:"https://github.com/abukanabek/ai-solutions"} ] },
+  { title: "IOAI Lab — Robot Simulation Training", blurb: "Training material for the Team Challenge's robot simulation component.",
+    links: [ {l:"GitHub", u:"https://github.com/galbot-ioai/ioailab"} ] },
+];
+
+const COMMUNITY = [
+  { title: "IOAI Official Discord", blurb: "The official community — announcements, discussion, and other students preparing for IOAI.",
+    links: [ {l:"Join server", u:"https://discord.gg/kWUJmvBFh"} ] },
+];
+
+/* ============================================================
+   Render
+   ============================================================ */
+function topicCount(tier){ return tier.clusters.reduce((n,c)=>n+c.topics.length,0); }
+
+function linkChips(links){
+  if(!links || !links.length) return "";
+  return links.map(x => `<a href="${x.u}" target="_blank" rel="noopener">${x.l} &rarr;</a>`).join("");
+}
+
+function renderCard(topic){
+  return `<div class="card" data-search="${(topic.title+" "+topic.blurb).toLowerCase()}">
+    <h3>${topic.title}</h3>
+    <p>${topic.blurb}</p>
+    <div class="links">${linkChips(topic.links)}</div>
+  </div>`;
+}
+
+function renderTier(tier){
+  const clustersHtml = tier.clusters.map(c => `
+    <div class="cluster">
+      <p class="cluster-name" style="--dot:${tier.color}">${c.name}</p>
+      <div class="card-grid">${c.topics.map(renderCard).join("")}</div>
+    </div>
+  `).join("");
+
+  return `
+  <section class="tier" id="${tier.id}">
+    <div class="tier-head">
+      <span class="tier-num" style="--dot:${tier.color}; color:${tier.color};">${tier.num}</span>
+      <h2>${tier.label}</h2>
+      <span class="tier-count">${topicCount(tier)} topics</span>
+    </div>
+    <p class="tier-tagline">${tier.tagline}</p>
+    <div class="rail" style="--dot:${tier.color}">${clustersHtml}</div>
+  </section>`;
+}
+
+document.getElementById("tiers").innerHTML = DATA.map(renderTier).join("");
+document.getElementById("competeGrid").innerHTML = COMPETE.map(renderCard).join("");
+document.getElementById("communityGrid").innerHTML = COMMUNITY.map(renderCard).join("");
+document.getElementById("competeCount").textContent = (COMPETE.length + COMMUNITY.length) + " resources";
+
+// nav links (dot-coded)
+const allTiers = DATA.concat([{id:"compete", label:"Practice", color:"var(--c-compete)"}]);
+document.getElementById("tierLinks").innerHTML = allTiers.map(t =>
+  `<a class="tier-link" href="#${t.id}" style="--dot:${t.color}" data-id="${t.id}"><span class="dot"></span>${t.label}</a>`
+).join("");
+
+// stat row
+const totalTopics = DATA.reduce((n,t)=>n+topicCount(t),0);
+document.getElementById("statRow").innerHTML = `
+  <div class="stat"><b>${DATA.length}</b><span>tiers</span></div>
+  <div class="stat"><b>${totalTopics}</b><span>syllabus topics mapped</span></div>
+  <div class="stat"><b>${COMPETE.length}</b><span>practice sources</span></div>
+`;
+
+// active tier highlighting on scroll
+const sections = [...document.querySelectorAll(".tier")];
+const navLinks = [...document.querySelectorAll(".tier-link")];
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      navLinks.forEach(a=>a.classList.toggle("active", a.dataset.id === entry.target.id));
+    }
+  });
+}, { rootMargin: "-40% 0px -55% 0px" });
+sections.forEach(s=>observer.observe(s));
+
+// live filter
+const searchBox = document.getElementById("searchBox");
+const searchHint = document.getElementById("searchHint");
+searchBox.addEventListener("input", ()=>{
+  const q = searchBox.value.trim().toLowerCase();
+  const cards = document.querySelectorAll(".card");
+  let shown = 0;
+  cards.forEach(card=>{
+    const match = !q || card.dataset.search.includes(q);
+    card.classList.toggle("hidden", !match);
+    if(match) shown++;
+  });
+  document.querySelectorAll(".cluster").forEach(cluster=>{
+    const visible = cluster.querySelectorAll(".card:not(.hidden)").length;
+    cluster.classList.toggle("hidden", visible === 0);
+  });
+  searchHint.textContent = q ? `${shown} topic${shown===1?"":"s"} match "${q}"` : "\u00A0";
+});
+
+// Keep the theme choice between visits.
+const themeToggle = document.getElementById("themeToggle");
+const setTheme = (isLight) => {
+  document.body.classList.toggle("light", isLight);
+  themeToggle.textContent = isLight ? "Dark theme" : "Light theme";
+  themeToggle.setAttribute("aria-pressed", String(isLight));
+  localStorage.setItem("ioai-theme", isLight ? "light" : "dark");
+};
+setTheme(localStorage.getItem("ioai-theme") === "light");
+themeToggle.addEventListener("click", () => setTheme(!document.body.classList.contains("light")));
+</script>
+</body>
+</html>
